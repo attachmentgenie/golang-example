@@ -3,7 +3,8 @@ before:
     - go mod download
     - go generate ./...
 builds:
-  - env:
+  - binary: "example"
+    env:
       - CGO_ENABLED=0
     targets:
       - "linux_amd64"
