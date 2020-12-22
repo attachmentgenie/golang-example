@@ -20,7 +20,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	fmt.Printf("my app %s, commit %s, built at %s by %s", version, commit, date, builtBy)
+	fmt.Printf("example app %s, commit %s, built at %s by %s", version, commit, date, builtBy)
 
 	h := health.New(health.Health{})
 	http.HandleFunc("/health", h.Handler)
