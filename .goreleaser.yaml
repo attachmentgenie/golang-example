@@ -1,0 +1,65 @@
+before:
+  hooks:
+    - go mod download
+archives:
+  - id: darwin
+    builds:
+      - darwin
+  - id: linux
+    builds:
+      - linux
+brews:
+  - ids:
+      - darwin
+    tap:
+      owner: attachmentgenie
+      name: "{{.ProjectName}}"
+builds:
+  - id: darwin
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X github.com/attachmentgenie/golang-example/cmd.service=example
+      - -X github.com/prometheus/common/version.Branch={{.Branch}}
+      - -X github.com/prometheus/common/version.BuildDate={{.Date}}
+      - -X github.com/prometheus/common/version.BuildUser=goreleaser
+      - -X github.com/prometheus/common/version.Revision={{.FullCommit}}
+      - -X github.com/prometheus/common/version.Version={{.Version}}
+  - id: linux
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm
+      - arm64
+    goarm:
+      - 6
+      - 7
+    ldflags:
+      - -s -w
+      - -X github.com/attachmentgenie/golang-example/cmd.service=example
+      - -X github.com/prometheus/common/version.Branch={{.Branch}}
+      - -X github.com/prometheus/common/version.BuildDate={{.Date}}
+      - -X github.com/prometheus/common/version.BuildUser=goreleaser
+      - -X github.com/prometheus/common/version.Revision={{.FullCommit}}
+      - -X github.com/prometheus/common/version.Version={{.Version}}
+release:
+  prerelease: auto
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
