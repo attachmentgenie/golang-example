@@ -4,16 +4,24 @@ before:
 archives:
   - id: darwin
     builds:
-      - darwin
+    - darwin
+    format: zip
   - id: linux
     builds:
-      - linux
+    - linux
+    format: zip
+  - id: windows
+    builds:
+      - windows
+    format: zip
 brews:
   - ids:
       - darwin
-    tap:
+    install: |
+      bin.install "{{.ProjectName}}"
+    repository:
       owner: attachmentgenie
-      name: "{{.ProjectName}}"
+      name: homebrew-tap
 builds:
   - id: darwin
     env:
@@ -23,14 +31,6 @@ builds:
     goarch:
       - amd64
       - arm64
-    ldflags:
-      - -s -w
-      - -X github.com/attachmentgenie/golang-example/cmd.service=example
-      - -X github.com/prometheus/common/version.Branch={{.Branch}}
-      - -X github.com/prometheus/common/version.BuildDate={{.Date}}
-      - -X github.com/prometheus/common/version.BuildUser=goreleaser
-      - -X github.com/prometheus/common/version.Revision={{.FullCommit}}
-      - -X github.com/prometheus/common/version.Version={{.Version}}
   - id: linux
     env:
       - CGO_ENABLED=0
@@ -41,16 +41,53 @@ builds:
       - arm
       - arm64
     goarm:
-      - 6
       - 7
-    ldflags:
-      - -s -w
-      - -X github.com/attachmentgenie/golang-example/cmd.service=example
-      - -X github.com/prometheus/common/version.Branch={{.Branch}}
-      - -X github.com/prometheus/common/version.BuildDate={{.Date}}
-      - -X github.com/prometheus/common/version.BuildUser=goreleaser
-      - -X github.com/prometheus/common/version.Revision={{.FullCommit}}
-      - -X github.com/prometheus/common/version.Version={{.Version}}
+  - id: windows
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - windows
+    goarch:
+      - amd64
+dockers:
+  - image_templates:
+      - "ghcr.io/attachmentgenie/{{.ProjectName}}:{{ .Version }}-amd64"
+    use: buildx
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--label=org.opencontainers.image.source https://github.com/attachmentgenie/{{.ProjectName}}"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--platform=linux/amd64"
+  - image_templates:
+      - "ghcr.io/attachmentgenie/{{.ProjectName}}:{{ .Version }}-arm64v7"
+    use: buildx
+    goarch: arm64
+    goarm: "7"
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--label=org.opencontainers.image.source https://github.com/attachmentgenie/{{.ProjectName}}"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--platform=linux/arm64/v7"
+docker_manifests:
+  - name_template: "ghcr.io/attachmentgenie/{{.ProjectName}}:{{ .Version }}"
+    image_templates:
+      - "ghcr.io/attachmentgenie/{{.ProjectName}}:{{ .Version }}-amd64"
+      - "ghcr.io/attachmentgenie/{{.ProjectName}}:{{ .Version }}-arm64v7"
+nfpms:
+  - id: darwin
+    maintainer: 'bram vogelaar <bram@attachmentgenie.com>'
+    package_name: "{{.ProjectName}}"
+    builds:
+      - linux
+    formats:
+      - deb
+      - rpm
 release:
   prerelease: auto
 checksum:
