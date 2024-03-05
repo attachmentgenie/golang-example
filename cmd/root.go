@@ -7,14 +7,13 @@ import (
 )
 
 var (
-	service = "unknown"
+	Service string
 )
 
 var rootCmd = &cobra.Command{
-	Use:   service,
-	Short: "Make live a bit easier by automatically creating consul service-resolver config",
-	Long: `Like with actual airports we sometimes need a process that controls what should happen with ingress requests. 
-manually setting up failover and redirect consul service-resolver config can be quite laborious.`,
+	Use:   Service,
+	Short: "Basic golang http server example.",
+	Long:  `Basic golang http server example.`,
 }
 
 func Execute() {

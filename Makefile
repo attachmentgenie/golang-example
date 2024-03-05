@@ -1,4 +1,4 @@
-APP-BIN := dist/$(shell basename $(shell pwd))
+APP-BIN := dist/example
 .PHONY: build
 build:
 	goreleaser build --id $(shell go env GOOS) --single-target --snapshot --clean -o ${APP-BIN}

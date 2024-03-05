@@ -2,12 +2,15 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	promversion "github.com/prometheus/common/version"
-	"github.com/spf13/cobra"
 	"log"
 	"net/http"
+
+	"github.com/prometheus/client_golang/prometheus"
+	promversion "github.com/prometheus/client_golang/prometheus/collectors/version"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/prometheus/common/version"
+	"github.com/prometheus/exporter-toolkit/web"
+	"github.com/spf13/cobra"
 )
 
 var port int
@@ -19,10 +22,10 @@ var serverCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		reg := prometheus.NewRegistry()
 		reg.MustRegister(
-			promversion.NewCollector(service),
+			promversion.NewCollector(Service),
 		)
 
-		http.HandleFunc("/", ping)
+		http.Handle("/", landingPage())
 		http.HandleFunc("/health", ping)
 		http.Handle(
 			"/metrics", promhttp.HandlerFor(
@@ -42,5 +45,35 @@ func init() {
 }
 
 func ping(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, "pong")
+	_, err := fmt.Fprintf(w, "pong")
+	if err != nil {
+		return
+	}
+}
+
+func landingPage() *web.LandingPageHandler {
+	landingConfig := web.LandingConfig{
+		Name:    Service,
+		Version: version.Version,
+		Links: []web.LandingLinks{
+			{
+				Address: "/health",
+				Text:    "Health",
+			},
+			{
+				Address: "/metrics",
+				Text:    "Metrics",
+			},
+			{
+				Address: "/ready",
+				Text:    "Ready",
+			},
+		},
+	}
+	landingPage, err := web.NewLandingPage(landingConfig)
+	if err != nil {
+		panic(err)
+	}
+
+	return landingPage
 }
