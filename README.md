@@ -7,5 +7,5 @@ golang starter project
 ## install
 
 ### os x
-brew tap attachmentgenie/golang-example https://github.com/attachmentgenie/golang-example.git
+brew tap attachmentgenie/tap
 brew install golang-example
