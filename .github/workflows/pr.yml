@@ -40,4 +40,4 @@ jobs:
         with:
           distribution: goreleaser
           version: latest
-          args: build --id $(go env GOOS) --single-target --snapshot --clean
+          args: build --snapshot --clean
