@@ -7,7 +7,7 @@ permissions:
   contents: write
   packages: write
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     env:
       DOCKER_CLI_EXPERIMENTAL: "enabled"
@@ -27,6 +27,7 @@ jobs:
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: "homebrew-tap"
+      - uses: anchore/sbom-action/download-syft@v0.15.9
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
