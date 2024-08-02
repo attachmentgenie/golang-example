@@ -1,3 +1,4 @@
+version: 2
 project_name: example
 before:
   hooks:
@@ -18,7 +19,7 @@ archives:
 brews:
   - ids:
       - darwin
-    folder: Formula
+    directory: Formula
     install: |
       bin.install "{{.ProjectName}}"
     repository:
@@ -76,6 +77,14 @@ dockers:
       - "--platform=linux/arm64/v8"
 docker_manifests:
   - name_template: "ghcr.io/attachmentgenie/{{.ProjectName}}:{{ .Version }}"
+    image_templates:
+      - "ghcr.io/attachmentgenie/{{.ProjectName}}:{{ .Version }}-amd64"
+      - "ghcr.io/attachmentgenie/{{.ProjectName}}:{{ .Version }}-arm64v8"
+  - name_template: "ghcr.io/attachmentgenie/{{.ProjectName}}:v{{ .Major }}"
+    image_templates:
+      - "ghcr.io/attachmentgenie/{{.ProjectName}}:{{ .Version }}-amd64"
+      - "ghcr.io/attachmentgenie/{{.ProjectName}}:{{ .Version }}-arm64v8"
+  - name_template: "ghcr.io/attachmentgenie/{{.ProjectName}}:latest"
     image_templates:
       - "ghcr.io/attachmentgenie/{{.ProjectName}}:{{ .Version }}-amd64"
       - "ghcr.io/attachmentgenie/{{.ProjectName}}:{{ .Version }}-arm64v8"
