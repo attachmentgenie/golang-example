@@ -1,3 +1,3 @@
 FROM scratch
-ENTRYPOINT ["example", "server"]
+ENTRYPOINT ["/example", "server"]
 COPY example /
