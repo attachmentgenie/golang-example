@@ -6,7 +6,7 @@ require (
 	github.com/prometheus/client_golang v1.20.5
 	github.com/prometheus/common v0.62.0
 	github.com/prometheus/exporter-toolkit v0.14.0
-	github.com/spf13/cobra v1.8.1
+	github.com/spf13/cobra v1.9.1
 )
 
 require (
@@ -23,7 +23,7 @@ require (
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/spf13/pflag v1.0.6 // indirect
 	golang.org/x/crypto v0.32.0 // indirect
 	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/oauth2 v0.24.0 // indirect
