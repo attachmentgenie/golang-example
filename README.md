@@ -1,6 +1,6 @@
 # golang-example
 
-![goreleaser](https://github.com/attachmentgenie/golang-example/workflows/goreleaser/badge.svg)
+![golang-example]([https://github.com/attachmentgenie/golang-example/workflows/goreleaser/badge.svg](https://github.com/attachmentgenie/golang-example/actions/workflows/pr.yml/badge.svg))
 
 golang starter project
 
