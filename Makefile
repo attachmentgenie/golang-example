@@ -24,6 +24,11 @@ run:
 	./${APP-BIN} server
 .PHONY: fresh
 fresh: build run
+.PHONY: test
+test:
+	go test ./...
 .PHONY: lint
 lint:
 	golangci-lint run -D errcheck
+.PHONY: qa
+qa: lint test

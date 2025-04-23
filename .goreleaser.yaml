@@ -5,17 +5,14 @@ before:
     - go mod download
 archives:
   - id: darwin
-    builds:
-    - darwin
-    format: zip
+    ids: ['darwin']
+    formats: [ 'zip' ]
   - id: linux
-    builds:
-    - linux
-    format: zip
+    ids: [ 'linux']
+    formats: [ 'zip' ]
   - id: windows
-    builds:
-      - windows
-    format: zip
+    ids: ['windows']
+    formats: [ 'zip' ]
 brews:
   - ids:
       - darwin
@@ -92,8 +89,7 @@ nfpms:
   - id: linux
     maintainer: 'bram vogelaar <bram@attachmentgenie.com>'
     package_name: "{{.ProjectName}}"
-    builds:
-      - linux
+    ids: [ 'linux']
     formats:
       - deb
       - rpm
