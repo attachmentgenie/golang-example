@@ -1,6 +1,6 @@
 APP-BIN := dist/example
-.PHONY: build
-build:
+.PHONY: dev
+dev:
 	goreleaser build --id $(shell go env GOOS) --single-target --snapshot --clean -o ${APP-BIN}
 .PHONY: darwin
 darwin:
@@ -11,19 +11,26 @@ linux:
 .PHONY: snapshot
 snapshot:
 	goreleaser release --snapshot --clean
+.PHONY: build
+build:
+	goreleaser --clean
 .PHONY: tag
 tag:
 	git tag $(shell svu next)
 	git push --tags
 .PHONY: release
-release: tag
-	goreleaser --clean
+release: tag build
 
 .PHONY: run
 run:
 	./${APP-BIN} server
 .PHONY: fresh
 fresh: build run
+.PHONY: test
+test:
+	go test ./...
 .PHONY: lint
 lint:
 	golangci-lint run -D errcheck
+.PHONY: qa
+qa: lint test
