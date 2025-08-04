@@ -3,7 +3,7 @@ module github.com/attachmentgenie/golang-example
 go 1.24
 
 require (
-	github.com/prometheus/client_golang v1.22.0
+	github.com/prometheus/client_golang v1.23.0
 	github.com/prometheus/common v0.65.0
 	github.com/prometheus/exporter-toolkit v0.14.0
 	github.com/spf13/cobra v1.9.1
