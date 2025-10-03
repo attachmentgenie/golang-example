@@ -1,3 +1,4 @@
 FROM scratch
+ARG TARGETPLATFORM
 ENTRYPOINT ["/example", "server"]
-COPY example /
+COPY $TARGETPLATFORM/example /

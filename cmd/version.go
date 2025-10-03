@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	promversion "github.com/prometheus/common/version"
+	promVersion "github.com/prometheus/common/version"
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +13,7 @@ var versionCmd = &cobra.Command{
 	Short: "Return the version identifier.",
 	Long:  `Return the version identifier for this application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("%s %s, commit %s, built at %s", Service, promversion.Version, promversion.Revision, promversion.BuildDate)
+		fmt.Printf("%s %s, commit %s, built at %s", Service, promVersion.Version, promVersion.Revision, promVersion.BuildDate)
 	},
 }
 
