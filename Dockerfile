@@ -1,3 +1,4 @@
 FROM scratch
-ENTRYPOINT ["/example", "server"]
-COPY example /
+ARG TARGETPLATFORM
+ENTRYPOINT ["/golang-example", "server"]
+COPY $TARGETPLATFORM/golang-example /
