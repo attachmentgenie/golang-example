@@ -1,5 +1,4 @@
 version: 2
-project_name: example
 before:
   hooks:
     - go mod download
