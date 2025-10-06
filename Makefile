@@ -38,4 +38,4 @@ qa: lint test
 run:
 	./${APP-BIN} server
 .PHONY: fresh
-fresh: build run
+fresh: dev run
