@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
+	"os"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/prometheus/client_golang/prometheus"
@@ -21,6 +23,11 @@ var serverCmd = &cobra.Command{
 	Short: "Start as a background process.",
 	Long:  "Start as a background process.",
 	Run: func(cmd *cobra.Command, args []string) {
+		slog.Info(
+			"Starting up...",
+			slog.String("version", promVersion.Version),
+			slog.String("commit", promVersion.Revision),
+		)
 		mcpServer := mcp.NewServer(&mcp.Implementation{
 			Name:    Service,
 			Version: promVersion.Version,
@@ -32,7 +39,8 @@ var serverCmd = &cobra.Command{
 		)
 
 		http.Handle("/", landingPage())
-		http.HandleFunc("/health", ping)
+		http.HandleFunc("/health", pingHTTP)
+		mcp.AddTool(mcpServer, &mcp.Tool{Name: "health"}, pingMcp)
 		http.Handle(
 			"/mcp", mcp.NewStreamableHTTPHandler(
 				func(req *http.Request) *mcp.Server {
@@ -47,8 +55,12 @@ var serverCmd = &cobra.Command{
 					EnableOpenMetrics: true,
 				}),
 		)
-		http.HandleFunc("/ready", ping)
-		log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%v", port), nil))
+		http.HandleFunc("/ready", pingHTTP)
+		err := http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
+		if err != nil {
+			slog.Error(err.Error(), err)
+			os.Exit(1)
+		}
 	},
 }
 
@@ -57,11 +69,26 @@ func init() {
 	serverCmd.Flags().IntVar(&port, "port", 8088, "port to expose service on.")
 }
 
-func ping(w http.ResponseWriter, req *http.Request) {
-	_, err := fmt.Fprintf(w, "pong")
+func ping() string {
+	return "pong"
+}
+func pingHTTP(w http.ResponseWriter, req *http.Request) {
+	_, err := fmt.Fprintf(w, ping())
 	if err != nil {
 		return
 	}
+}
+
+func pingMcp(ctx context.Context, req *mcp.CallToolRequest, input any) (
+	*mcp.CallToolResult,
+	any,
+	error,
+) {
+	return &mcp.CallToolResult{
+		Content: []mcp.Content{
+			&mcp.TextContent{Text: ping()},
+		},
+	}, nil, nil
 }
 
 func landingPage() *web.LandingPageHandler {
