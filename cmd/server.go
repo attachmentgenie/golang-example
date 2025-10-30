@@ -58,7 +58,7 @@ var serverCmd = &cobra.Command{
 		http.HandleFunc("/ready", pingHTTP)
 		err := http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
 		if err != nil {
-			slog.Error(err.Error(), err)
+			slog.Error(err.Error())
 			os.Exit(1)
 		}
 	},
@@ -73,7 +73,7 @@ func ping() string {
 	return "pong"
 }
 func pingHTTP(w http.ResponseWriter, req *http.Request) {
-	_, err := fmt.Fprintf(w, ping())
+	_, err := fmt.Fprintf(w, "%s", ping())
 	if err != nil {
 		return
 	}
