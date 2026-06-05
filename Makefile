@@ -24,5 +24,5 @@ test:
 qa: lint test
 
 run:
-	./${APP-BIN} list
+	./${APP-BIN} server
 fresh: build run

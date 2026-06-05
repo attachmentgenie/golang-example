@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/prometheus/client_golang/prometheus"
@@ -27,6 +28,10 @@ var serverCmd = &cobra.Command{
 			"Starting up...",
 			slog.String("version", promVersion.Version),
 			slog.String("commit", promVersion.Revision),
+		)
+		slog.Info(
+			"Listening on...",
+			slog.String("port", strconv.Itoa(port)),
 		)
 		mcpServer := mcp.NewServer(&mcp.Implementation{
 			Name:    Service,
@@ -69,11 +74,11 @@ func init() {
 	serverCmd.Flags().IntVar(&port, "port", 8088, "port to expose service on.")
 }
 
-func ping() string {
-	return "pong"
+func ping(protocol string) string {
+	return fmt.Sprintf("pong %s", protocol)
 }
 func pingHTTP(w http.ResponseWriter, req *http.Request) {
-	_, err := fmt.Fprintf(w, "%s", ping())
+	_, err := fmt.Fprintf(w, "%s", ping("HTTP"))
 	if err != nil {
 		return
 	}
@@ -86,15 +91,14 @@ func pingMcp(ctx context.Context, req *mcp.CallToolRequest, input any) (
 ) {
 	return &mcp.CallToolResult{
 		Content: []mcp.Content{
-			&mcp.TextContent{Text: ping()},
+			&mcp.TextContent{Text: ping("MCP")},
 		},
 	}, nil, nil
 }
 
 func landingPage() *web.LandingPageHandler {
 	landingConfig := web.LandingConfig{
-		Name:    Service,
-		Version: promVersion.Version,
+		Name: Service,
 		Links: []web.LandingLinks{
 			{
 				Address: "/health",
@@ -113,6 +117,8 @@ func landingPage() *web.LandingPageHandler {
 				Text:    "Ready",
 			},
 		},
+		Profiling: "false",
+		Version:   promVersion.Version,
 	}
 	landingPage, err := web.NewLandingPage(landingConfig)
 	if err != nil {
