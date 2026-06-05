@@ -6,7 +6,9 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/prometheus/client_golang/prometheus"
@@ -32,6 +34,7 @@ var serverCmd = &cobra.Command{
 		slog.Info(
 			"Listening on...",
 			slog.String("port", strconv.Itoa(port)),
+			slog.String("o11y", strconv.Itoa(port+1)),
 		)
 		mcpServer := mcp.NewServer(&mcp.Implementation{
 			Name:    Service,
@@ -43,29 +46,71 @@ var serverCmd = &cobra.Command{
 			promCollectors.NewCollector(Service),
 		)
 
-		http.Handle("/", landingPage())
-		http.HandleFunc("/health", pingHTTP)
+		mainMux := http.NewServeMux()
+		mainMux.Handle("/", landingPage())
+		mainMux.HandleFunc("/health", pingHTTP)
 		mcp.AddTool(mcpServer, &mcp.Tool{Name: "health"}, pingMcp)
-		http.Handle(
+		mainMux.Handle(
 			"/mcp", mcp.NewStreamableHTTPHandler(
 				func(req *http.Request) *mcp.Server {
 					return mcpServer
 				},
 				nil),
 		)
-		http.Handle(
+		mainMux.HandleFunc("/ready", pingHTTP)
+		mainSrv := &http.Server{
+			Addr:    fmt.Sprintf(":%v", port),
+			Handler: http.NewCrossOriginProtection().Handler(mainMux),
+		}
+
+		o11yMux := http.NewServeMux()
+		o11yMux.Handle(
 			"/metrics", promhttp.HandlerFor(
 				reg,
 				promhttp.HandlerOpts{
 					EnableOpenMetrics: true,
 				}),
 		)
-		http.HandleFunc("/ready", pingHTTP)
-		err := http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
-		if err != nil {
-			slog.Error(err.Error())
-			os.Exit(1)
+		o11ySrv := &http.Server{
+			Addr:    fmt.Sprintf(":%v", port+1),
+			Handler: http.NewCrossOriginProtection().Handler(o11yMux),
 		}
+
+		ctx, cancel := context.WithCancel(context.Background())
+		sigs := make(chan os.Signal, 1)
+		signal.Notify(sigs, syscall.SIGINT)
+
+		go func() {
+			err := mainSrv.ListenAndServe()
+			if err != nil {
+				slog.Error(err.Error())
+				os.Exit(1)
+			}
+		}()
+
+		go func() {
+			err := o11ySrv.ListenAndServe()
+			if err != nil {
+				slog.Error(err.Error())
+				os.Exit(1)
+			}
+		}()
+
+		defer func() {
+			if err := mainSrv.Shutdown(ctx); err != nil {
+				slog.Error("error when shutting down the main server: ", "error", err)
+			}
+			if err := o11ySrv.Shutdown(ctx); err != nil {
+				slog.Error("error when shutting down the o11y server: ", "error", err)
+			}
+		}()
+
+		sig := <-sigs
+		fmt.Println(sig)
+
+		cancel()
+
+		slog.Error("service has shutdown")
 	},
 }
 
