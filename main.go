@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/attachmentgenie/golang-example/cmd"
+	"github.com/attachmentgenie/golang-example/internal/cmd"
 	promVersion "github.com/prometheus/common/version"
 )
 
